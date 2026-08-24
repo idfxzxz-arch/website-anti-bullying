@@ -6,8 +6,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// Gunakan endpoint dari .env, atau fallback ke API Gemini
-const CUSTOM_ENDPOINT = process.env.AI_ENDPOINT_URL || "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+// Tidak butuh API karena chat sekarang bersifat rule-based lokal
 
 // Health check endpoint
 app.get("/api/health", (_req, res) => {
@@ -21,62 +20,35 @@ app.post("/api/chat", async (req, res) => {
     if (!message) {
       return res.status(400).json({ error: "Pesan tidak boleh kosong." });
     }
+    const text = message.toLowerCase();
+    let replyText = "";
 
-    const systemInstruction = `Kamu adalah SIGAP AI, asisten pendamping dan konselor virtual yang hangat, suportif, empatik, tenang, dan aman untuk siswa sekolah (SMP/SMA) di Indonesia dalam menghadapi situasi perundungan/bullying (verbal, fisik, sosial/pengucilan, atau cyberbullying).
-
-Pedoman Komunikasi:
-1. Validasi perasaan pengguna dengan ramah, tidak menghakimi, dan menenangkan. Gunakan bahasa Indonesia santai namun sopan dan mudah dipahami anak muda ("kamu", "aku").
-2. Berikan saran praktis langkah demi langkah yang aman (tidak membalas kekerasan dengan kekerasan).
-3. Jika situasi berbahaya atau darurat, selalu ingatkan dengan lembut untuk memberitahu orang dewasa tepercaya (orang tua, wali kelas, guru BK, atau hotline anak 129).
-4. Jangan terlalu panjang berbelit-belit; buat jawaban terstruktur, menenangkan, dan berikan opsi tindakan berikutnya.
-5. BATASAN KETAT: Kamu HANYA BOLEH membahas topik seputar perundungan (bullying), masalah sekolah, pertemanan, kesehatan emosional, dan konseling remaja. Jika pengguna bertanya hal di luar topik ini (contoh: coding, matematika, politik, resep masakan, dll), tolak dengan sopan dan ingatkan bahwa kamu adalah AI khusus pendampingan krisis dan pertemanan sekolah.`;
-
-    // Build context from history
-    const formattedMessages = [
-      { role: "system", content: systemInstruction },
-      ...history.map((h: { role: string; text: string }) => ({
-        role: h.role === "user" ? "user" : "assistant",
-        content: h.text,
-      })),
-      { role: "user", content: message },
-    ];
-
-    const CUSTOM_ENDPOINT =
-      process.env.AI_ENDPOINT_URL ||
-      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-    const apiKey = process.env.AI_API_KEY || "";
-    const modelName = process.env.AI_MODEL_NAME || "gemini-flash-latest";
-
-    const response = await fetch(CUSTOM_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: modelName,
-        messages: formattedMessages,
-        temperature: 0.7,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Local API error: ${response.status}`);
+    // 1. Deteksi Salam
+    if (text.match(/^(halo|hai|pagi|siang|sore|malam|assalamualaikum|hey|hy)/i)) {
+      replyText = "Halo! 👋 Aku SIGAP, asisten yang siap mendengarkan cerita dan keluh kesahmu di sekolah. Ada yang bisa aku bantu hari ini? Jangan ragu untuk bercerita ya.";
+    } 
+    // 2. Deteksi Ancaman / Kekerasan Fisik
+    else if (text.match(/(takut|dipukul|ditendang|diancam|dikroyok|ditampar|luka)/i)) {
+      replyText = "Aku sangat sedih mendengar kamu mengalami ini, dan yang paling penting: **Ini bukan salahmu**. Keselamatan fisikmu adalah prioritas utama. Tolong secepatnya beri tahu orang dewasa yang kamu percaya (seperti orang tua, guru BK, atau wali kelas). Jika kamu merasa dalam bahaya sekarang, segera menyingkir ke tempat ramai atau ruang guru. Kamu juga bisa menggunakan fitur 'Lapor Aman' di aplikasi ini untuk merekam buktinya.";
     }
-
-    const data = await response.json();
-    const replyText =
-      data.choices?.[0]?.message?.content ||
-      "Aku di sini mendengarkanmu. Jangan ragu bercerita lebih lanjut ya.";
+    // 3. Deteksi Bullying Verbal / Cyberbullying
+    else if (text.match(/(diejek|dihina|dikatai|jelek|gendut|bodoh|cupu|sosmed|instagram|tiktok|dikucilkan|dijauhi|sendiri)/i)) {
+      replyText = "Pasti rasanya sakit sekali diperlakukan seperti itu. Aku mengerti perasaanmu. Ingatlah bahwa kata-kata buruk mereka tidak mendefinisikan siapa dirimu. Cobalah untuk mengabaikan mereka atau jangan merespon jika itu di sosmed (jangan beri mereka 'panggung'). Jika ini terus berlanjut dan mengganggu pikiranmu, ceritakan ke teman dekat atau guru yang kamu percaya agar kamu tidak memendamnya sendirian.";
+    }
+    // 4. Deteksi Pertanyaan Bantuan / Fitur Lapor
+    else if (text.match(/(lapor|bantuan|cara|tolong|sigap)/i)) {
+      replyText = "Kamu bisa menggunakan fitur **Lapor Aman** di aplikasi SIGAP ini. Laporanmu akan diteruskan langsung ke Satgas Anti-Bullying di sekolah secara rahasia. Kamu bisa melampirkan foto/screenshot bukti dan kronologi kejadiannya. Jangan takut, identitasmu bisa disamarkan (anonim) jika kamu memilih opsi tersebut.";
+    }
+    // 5. Fallback Default
+    else {
+      replyText = "Terima kasih sudah berbagi denganku. Aku di sini untuk mendengarkan. Apakah kamu mau bercerita lebih detail tentang kejadiannya atau bagaimana perasaanmu saat ini? Ingat, kamu tidak harus menghadapi ini sendirian.";
+    }
 
     res.json({ reply: replyText });
   } catch (error: any) {
     console.error("Local Chat Error:", error);
     res.status(500).json({
-      reply: `[SISTEM ERROR]: ${error.message || "Unknown error"}. 
-
-Tolong periksa Log Vercel Anda. Jika muncul tulisan ECONNREFUSED, berarti Vercel mencoba memakai IP 192.168.1.8 karena Environment Variable belum terpasang atau Anda lupa "Redeploy". 
-Jika muncul tulisan 530, berarti koneksi Tunnel Anda di Armbian mati.`,
+      reply: `[SISTEM ERROR]: Gagal memproses pesan. Pastikan aplikasi berjalan normal.`,
     });
   }
 });
@@ -156,45 +128,54 @@ app.post("/api/submit-report", async (req, res) => {
 app.post("/api/analyze-situation", async (req, res) => {
   try {
     const { answers } = req.body;
-
-    const prompt = `Analisis hasil kuis deteksi situasi perundungan siswa berikut:
-Jawaban Kuis: ${JSON.stringify(answers)}
-
-Tolong berikan penilaian singkat yang empatik apakah situasi ini tergolong perundungan (bullying), konflik sebaya biasa, atau situasi lainnya, beserta penjelasan ramah dan 3 langkah rekomendasi aman bagi siswa dalam format JSON. Balas hanya dengan objek JSON murni tanpa markdown, dengan struktur berikut:
-{
-  "verdict": "Potensi Perundungan (Bullying)",
-  "explanation": "Penjelasan mengapa situasi ini terjadi.",
-  "recommendations": ["Rekomendasi 1", "Rekomendasi 2", "Rekomendasi 3"]
-}`;
-
-    const apiKey = process.env.AI_API_KEY || "";
-    const modelName = process.env.AI_MODEL_NAME || "gemini-flash-latest";
-
-    const response = await fetch(CUSTOM_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: modelName,
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.3,
-      }),
+    let score = 0;
+    const values = Object.values(answers) as string[];
+    
+    // Simple scoring mechanism based on typical bullying answers
+    values.forEach((ans) => {
+      const lowerAns = ans.toLowerCase();
+      if (lowerAns.includes("sering") || lowerAns.includes("selalu") || lowerAns.includes("sengaja") || lowerAns.includes("banyak orang") || lowerAns.includes("fisik") || lowerAns.includes("sosmed")) {
+        score += 3;
+      } else if (lowerAns.includes("kadang") || lowerAns.includes("bercanda") || lowerAns.includes("teman")) {
+        score += 1;
+      }
     });
 
-    if (!response.ok) {
-      throw new Error(`Local API Error: ${response.status}`);
+    let verdict = "";
+    let explanation = "";
+    let recommendations: string[] = [];
+
+    if (score >= 6) {
+      verdict = "Potensi Perundungan (Bullying) Tinggi";
+      explanation = "Berdasarkan jawabanmu, situasi yang kamu alami menunjukkan pola perundungan yang serius, disengaja, dan berulang.";
+      recommendations = [
+        "Segera laporkan kejadian ini ke Guru BK atau Wali Kelas.",
+        "Gunakan fitur 'Lapor Aman' di aplikasi ini agar satgas sekolah bisa turun tangan.",
+        "Jangan berada di tempat sepi sendirian, selalu cari teman yang bisa dipercaya."
+      ];
+    } else if (score >= 3) {
+      verdict = "Potensi Konflik Sebaya / Perundungan Ringan";
+      explanation = "Situasi ini membuatmu tidak nyaman, namun mungkin berawal dari konflik antar teman atau candaan yang kelewatan batas.";
+      recommendations = [
+        "Sampaikan dengan tegas ke temanmu bahwa kamu tidak suka diperlakukan seperti itu.",
+        "Abaikan mereka yang mencari perhatian negatif darimu.",
+        "Jika berlanjut, jangan ragu untuk bercerita kepada guru."
+      ];
+    } else {
+      verdict = "Situasi Aman / Interaksi Normal";
+      explanation = "Dari ceritamu, sepertinya situasi di sekitarmu masih tergolong normal dan terkendali. Tidak ada tanda bahaya bullying yang kuat.";
+      recommendations = [
+        "Tetap jaga pertemanan yang sehat dan positif.",
+        "Jadilah *upstander*, bantu temanmu jika kamu melihat mereka di-bully.",
+        "Simpan aplikasi SIGAP untuk berjaga-jaga jika kamu atau temanmu butuh bantuan kelak."
+      ];
     }
 
-    const data = await response.json();
-    let replyText = data.choices?.[0]?.message?.content || "{}";
-
-    // Bersihkan teks dari blok markdown jika ada
-    replyText = replyText.replace(/```json/g, "").replace(/```/g, "").trim();
-
-    const result = JSON.parse(replyText);
-    res.json(result);
+    res.json({
+      verdict,
+      explanation,
+      recommendations
+    });
   } catch (err) {
     console.error("Situation Analysis Error:", err);
     res.json({
