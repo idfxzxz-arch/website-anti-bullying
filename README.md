@@ -7,7 +7,7 @@ Aplikasi ini menggabungkan kecerdasan buatan (AI) yang suportif, sistem pelapora
 ## ✨ Fitur Utama
 
 - **🛡️ Lapor Aman (Terintegrasi Discord)**: Sistem pelaporan perundungan anonim yang langsung terhubung secara *real-time* dengan *channel* Discord Satgas / Guru BK menggunakan Webhook. Mendukung unggahan lampiran foto sebagai barang bukti.
-- **🤖 Tanya SIGAP AI**: Konselor pribadi 24/7 yang hangat, suportif, dan empatik. Dilengkapi kecerdasan buatan (*Prompt Engineering* khusus) untuk memvalidasi perasaan dan meredam kepanikan emosional siswa.
+- **🤖 Tanya SIGAP AI**: Konselor pribadi 24/7 yang hangat, suportif, dan empatik. Dilengkapi sistem pendeteksi kata kunci (*Keyword-Based/Rule-Based Deterministic*) yang berjalan secara lokal untuk memvalidasi perasaan dan meredam kepanikan emosional siswa dalam 0.1 detik (tanpa delay).
 - **🎮 SIGAP Game & Simulasi**: Belajar edukasi *anti-bullying* melalui skenario *roleplay*, tebak cepat (*Quick Decision*), dan detektif kasus. Dilengkapi sistem XP (Experience Points), Leveling, dan Badges (Lencana).
 - **📚 Modul Belajar Interaktif**: Materi edukasi modern mengenai berbagai jenis perundungan (Fisik, Verbal, *Cyberbullying*) dengan visual menarik.
 - **🔔 Pusat Notifikasi Dinamis**: Pemberitahuan interaktif saat siswa mencapai *Level Up*, mendapatkan Lencana baru, atau ketika laporan telah sukses dikirim ke server.
@@ -28,14 +28,10 @@ Aplikasi ini menggabungkan kecerdasan buatan (AI) yang suportif, sistem pelapora
 3. **Konfigurasi Variabel Lingkungan (`.env`)**
    Buat file bernama `.env` di *root folder* proyek Anda dan isi dengan konfigurasi berikut:
    ```env
-   # Endpoint AI Lokal
-   LOCAL_API_KEY="isi_dengan_kunci_api_anda"
-   LOCAL_MODEL_NAME="cx/gpt-5.5"
-
    # URL Aplikasi
    APP_URL="http://localhost:5173"
    
-   # Webhook Integrasi
+   # Webhook Integrasi Discord
    DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/xxxx/xxxx"
    ```
 
