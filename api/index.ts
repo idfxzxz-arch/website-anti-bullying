@@ -45,7 +45,7 @@ Pedoman Komunikasi:
       process.env.AI_ENDPOINT_URL ||
       "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
     const apiKey = process.env.AI_API_KEY || "";
-    const modelName = process.env.AI_MODEL_NAME || "gemini-1.5-flash";
+    const modelName = process.env.AI_MODEL_NAME || "gemini-flash-latest";
 
     const response = await fetch(CUSTOM_ENDPOINT, {
       method: "POST",
@@ -168,7 +168,7 @@ Tolong berikan penilaian singkat yang empatik apakah situasi ini tergolong perun
 }`;
 
     const apiKey = process.env.AI_API_KEY || "";
-    const modelName = process.env.AI_MODEL_NAME || "gemini-1.5-flash";
+    const modelName = process.env.AI_MODEL_NAME || "gemini-flash-latest";
 
     const response = await fetch(CUSTOM_ENDPOINT, {
       method: "POST",
