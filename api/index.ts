@@ -6,8 +6,8 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// Gunakan endpoint dari .env, atau fallback ke IP lokal bawaan
-const CUSTOM_ENDPOINT = process.env.AI_ENDPOINT_URL || "https://api.mistral.ai/v1/chat/completions";
+// Gunakan endpoint dari .env, atau fallback ke API Gemini
+const CUSTOM_ENDPOINT = process.env.AI_ENDPOINT_URL || "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 
 // Health check endpoint
 app.get("/api/health", (_req, res) => {
@@ -43,9 +43,9 @@ Pedoman Komunikasi:
 
     const CUSTOM_ENDPOINT =
       process.env.AI_ENDPOINT_URL ||
-      "https://api.mistral.ai/v1/chat/completions";
+      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
     const apiKey = process.env.AI_API_KEY || "";
-    const modelName = process.env.AI_MODEL_NAME || "mistral-large";
+    const modelName = process.env.AI_MODEL_NAME || "gemini-1.5-flash";
 
     const response = await fetch(CUSTOM_ENDPOINT, {
       method: "POST",
@@ -168,7 +168,7 @@ Tolong berikan penilaian singkat yang empatik apakah situasi ini tergolong perun
 }`;
 
     const apiKey = process.env.AI_API_KEY || "";
-    const modelName = process.env.AI_MODEL_NAME || "mistral-large";
+    const modelName = process.env.AI_MODEL_NAME || "gemini-1.5-flash";
 
     const response = await fetch(CUSTOM_ENDPOINT, {
       method: "POST",
