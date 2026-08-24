@@ -1,0 +1,6 @@
+{
+  "name": "SIGAP - Sistem Interaktif Gerakan Anti-Perundungan",
+  "description": "Aplikasi edukasi dan pendampingan anti-bullying interaktif dengan simulasi multi-perspektif, AI counselor, modul pembelajaran, deteksi situasi, dan pelaporan aman.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
