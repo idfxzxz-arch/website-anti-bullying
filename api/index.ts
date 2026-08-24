@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 // Gunakan endpoint dari .env, atau fallback ke IP lokal bawaan
-const CUSTOM_ENDPOINT = process.env.AI_ENDPOINT_URL || "http://192.168.1.8:20128/v1/chat/completions";
+const CUSTOM_ENDPOINT = process.env.AI_ENDPOINT_URL || "https://api.mistral.ai/v1/chat/completions";
 
 // Health check endpoint
 app.get("/api/health", (_req, res) => {
@@ -41,8 +41,11 @@ Pedoman Komunikasi:
       { role: "user", content: message },
     ];
 
-    const apiKey = process.env.LOCAL_API_KEY || "";
-    const modelName = process.env.LOCAL_MODEL_NAME || "local-model";
+    const CUSTOM_ENDPOINT =
+      process.env.AI_ENDPOINT_URL ||
+      "https://api.mistral.ai/v1/chat/completions";
+    const apiKey = process.env.AI_API_KEY || "";
+    const modelName = process.env.AI_MODEL_NAME || "mistral-large";
 
     const response = await fetch(CUSTOM_ENDPOINT, {
       method: "POST",
@@ -164,8 +167,8 @@ Tolong berikan penilaian singkat yang empatik apakah situasi ini tergolong perun
   "recommendations": ["Rekomendasi 1", "Rekomendasi 2", "Rekomendasi 3"]
 }`;
 
-    const apiKey = process.env.LOCAL_API_KEY || "";
-    const modelName = process.env.LOCAL_MODEL_NAME || "local-model";
+    const apiKey = process.env.AI_API_KEY || "";
+    const modelName = process.env.AI_MODEL_NAME || "mistral-large";
 
     const response = await fetch(CUSTOM_ENDPOINT, {
       method: "POST",
