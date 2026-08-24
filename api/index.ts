@@ -67,11 +67,13 @@ Pedoman Komunikasi:
       "Aku di sini mendengarkanmu. Jangan ragu bercerita lebih lanjut ya.";
 
     res.json({ reply: replyText });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Local Chat Error:", error);
     res.status(500).json({
-      reply:
-        "Aku selalu siap mendengarkan. Terkadang situasi perundungan memang berat, tapi kamu berani untuk berbicara. Kamu bisa memilih untuk mencatat bukti, bercerita ke teman tepercaya, atau membuat laporan aman di SIGAP.",
+      reply: `[SISTEM ERROR]: ${error.message || "Unknown error"}. 
+
+Tolong periksa Log Vercel Anda. Jika muncul tulisan ECONNREFUSED, berarti Vercel mencoba memakai IP 192.168.1.8 karena Environment Variable belum terpasang atau Anda lupa "Redeploy". 
+Jika muncul tulisan 530, berarti koneksi Tunnel Anda di Armbian mati.`,
     });
   }
 });
