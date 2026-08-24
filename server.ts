@@ -5,7 +5,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const CUSTOM_ENDPOINT = "http://192.168.1.8:20128/v1/chat/completions";
+// Gunakan endpoint dari .env, atau fallback ke IP lokal bawaan
+const CUSTOM_ENDPOINT = process.env.AI_ENDPOINT_URL || "http://192.168.1.8:20128/v1/chat/completions";
 
 async function startServer() {
   const app = express();
