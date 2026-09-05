@@ -96,25 +96,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
         <div className="flex items-center gap-4 z-10">
-          <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/80 shadow-md bg-white/20 shrink-0">
-            <img
-              src={adminUser.avatar}
-              alt={adminUser.name}
-              className="w-full h-full object-cover"
-            />
+          <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border-2 border-white/80 shadow-md flex items-center justify-center text-white shrink-0">
+            <span className="material-symbols-outlined text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+              admin_panel_settings
+            </span>
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase border border-white/30">
                 🛡️ Panel Satgas TPPK
               </span>
-              <span className="text-white/80 text-[12px]">• {adminUser.school}</span>
+              <span className="text-white/80 text-[12px]">• {adminUser.school || 'SMP Harapan Bangsa'}</span>
             </div>
             <h1 className="text-[20px] md:text-[24px] font-black leading-tight mt-1">
-              {adminUser.name}
+              Admin
             </h1>
             <p className="text-[13px] text-white/90 font-medium">
-              {adminUser.adminTitle || adminUser.role}
+              Satgas Anti-Bullying (TPPK)
             </p>
           </div>
         </div>

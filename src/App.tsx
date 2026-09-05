@@ -73,7 +73,16 @@ export function App() {
     try {
       const savedUser = localStorage.getItem(STORAGE_KEY_USER);
       if (savedUser) {
-        return JSON.parse(savedUser);
+        const parsed = JSON.parse(savedUser);
+        if (parsed.userRole === 'admin') {
+          return {
+            ...parsed,
+            name: 'Admin',
+            role: 'Administrator Satgas',
+            adminTitle: 'Satgas Anti-Bullying (TPPK)',
+          };
+        }
+        return parsed;
       }
     } catch (e) {
       console.error('Failed to parse saved user from localStorage', e);
