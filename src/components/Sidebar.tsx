@@ -103,13 +103,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={onOpenProfile}
           className="flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-[#edf4fc] transition-colors cursor-pointer text-left"
         >
-          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#2dbcfe] shrink-0">
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {user.userRole === 'admin' ? (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00658d] to-[#2dbcfe] border-2 border-[#2dbcfe] text-white flex items-center justify-center shrink-0 shadow-sm">
+              <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                admin_panel_settings
+              </span>
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#2dbcfe] shrink-0">
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <p className="text-[13.5px] font-bold text-[#031632] truncate">
               {user.name}

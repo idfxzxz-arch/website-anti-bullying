@@ -50,13 +50,21 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </button>
         )}
 
-        <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-4 border-[#2dbcfe] shadow-md relative">
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        {user.userRole === 'admin' ? (
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00658d] to-[#2dbcfe] mx-auto mb-3 border-4 border-[#2dbcfe] shadow-md flex items-center justify-center text-white relative">
+            <span className="material-symbols-outlined text-[40px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+              admin_panel_settings
+            </span>
+          </div>
+        ) : (
+          <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-4 border-[#2dbcfe] shadow-md relative">
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
 
         {isEditing ? (
           <div className="space-y-3 mt-4 text-left max-w-sm mx-auto">

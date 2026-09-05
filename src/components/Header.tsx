@@ -70,13 +70,21 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onOpenProfile}
             className="flex items-center gap-3 text-left group cursor-pointer"
           >
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#2dbcfe] shadow-sm group-hover:scale-105 transition-transform shrink-0">
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {user.userRole === 'admin' ? (
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00658d] to-[#2dbcfe] border-2 border-[#2dbcfe] text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  admin_panel_settings
+                </span>
+              </div>
+            ) : (
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#2dbcfe] shadow-sm group-hover:scale-105 transition-transform shrink-0">
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
             <div>
               <h2 className="text-[15px] font-bold text-[#031632] flex items-center gap-1.5 leading-tight">
                 Halo, {user.name.split(' ')[0]}! <span className="inline-block text-[14px]">👋</span>
@@ -92,13 +100,21 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onNavigateHome}
             className="flex items-center gap-2 cursor-pointer group"
           >
-            <div className="w-9 h-9 rounded-full bg-[#edf4fc] overflow-hidden border border-[#2dbcfe]/30 flex items-center justify-center text-[#00658d] group-hover:scale-105 transition-transform">
-              <img
-                src={user.avatar}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {user.userRole === 'admin' ? (
+              <div className="w-9 h-9 rounded-full bg-[#00658d] text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
+                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  admin_panel_settings
+                </span>
+              </div>
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-[#edf4fc] overflow-hidden border border-[#2dbcfe]/30 flex items-center justify-center text-[#00658d] group-hover:scale-105 transition-transform">
+                <img
+                  src={user.avatar}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
             <span className="font-extrabold text-[22px] tracking-tight text-[#00658d]">
               SIGAP
             </span>
