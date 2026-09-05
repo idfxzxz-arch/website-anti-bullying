@@ -4,11 +4,13 @@ import { DEMO_ACCOUNTS, INITIAL_STUDENT_USER, INITIAL_ADMIN_USER } from '../data
 
 interface LoginViewProps {
   onLoginSuccess: (user: UserProfile) => void;
+  onOpenOnboarding?: () => void;
   onContinueAsGuest?: () => void;
 }
 
 export const LoginView: React.FC<LoginViewProps> = ({
   onLoginSuccess,
+  onOpenOnboarding,
   onContinueAsGuest,
 }) => {
   const [activeRole, setActiveRole] = useState<UserRole>('student');
@@ -358,8 +360,23 @@ export const LoginView: React.FC<LoginViewProps> = ({
           </div>
         )}
 
+        {/* Onboarding Guide Link */}
+        {onOpenOnboarding && (
+          <div className="text-center pt-0.5">
+            <button
+              id="btn-view-onboarding"
+              type="button"
+              onClick={onOpenOnboarding}
+              className="text-[12px] font-semibold text-[#00658d] hover:text-[#031632] hover:underline flex items-center justify-center gap-1 mx-auto cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[16px]">menu_book</span>
+              Lihat Panduan & Pengenalan SIGAP
+            </button>
+          </div>
+        )}
+
         {/* Security badge footer */}
-        <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#75777e] mt-1">
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#75777e] mt-0.5">
           <span className="material-symbols-outlined text-[14px] text-[#00658d]" style={{ fontVariationSettings: "'FILL' 1" }}>
             verified_user
           </span>

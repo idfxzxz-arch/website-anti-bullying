@@ -41,9 +41,31 @@ const STORAGE_KEY_USER = 'sigap_auth_user_v2';
 const STORAGE_KEY_REPORTS = 'sigap_reports_v2';
 
 export function App() {
-  // Navigation & Screen state
-  const [currentScreen, setCurrentScreen] = useState<ScreenType>('splash');
-  const [activeTab, setActiveTab] = useState<TabType>('home');
+  // Navigation & Screen state (Defaults to 'login' for new users)
+  const [currentScreen, setCurrentScreen] = useState<ScreenType>(() => {
+    try {
+      const savedUser = localStorage.getItem(STORAGE_KEY_USER);
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        return parsed.userRole === 'admin' ? 'admin_dashboard' : 'home';
+      }
+    } catch (e) {
+      console.error('Failed to parse saved user from localStorage', e);
+    }
+    return 'login';
+  });
+
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    try {
+      const savedUser = localStorage.getItem(STORAGE_KEY_USER);
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        return parsed.userRole === 'admin' ? 'admin' : 'home';
+      }
+    } catch {}
+    return 'home';
+  });
+  
   const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   // Application Data States (with LocalStorage initializers)
@@ -56,7 +78,7 @@ export function App() {
     } catch (e) {
       console.error('Failed to parse saved user from localStorage', e);
     }
-    return INITIAL_USER;
+    return INITIAL_STUDENT_USER;
   });
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
@@ -327,7 +349,12 @@ export function App() {
 
   // 3. Login / Register Screen
   if (currentScreen === 'login') {
-    return <LoginView onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <LoginView
+        onLoginSuccess={handleLoginSuccess}
+        onOpenOnboarding={() => setCurrentScreen('onboarding')}
+      />
+    );
   }
 
   // Sub-screens header helper
