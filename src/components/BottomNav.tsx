@@ -1,22 +1,33 @@
 import React from 'react';
-import { TabType } from '../types';
+import { TabType, UserRole } from '../types';
 
 interface BottomNavProps {
   activeTab: TabType;
   onSelectTab: (tab: TabType) => void;
+  userRole?: UserRole;
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({
   activeTab,
   onSelectTab,
+  userRole = 'student',
 }) => {
-  const tabs: { key: TabType; label: string; icon: string }[] = [
+  const studentTabs: { key: TabType; label: string; icon: string }[] = [
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'game', label: 'Game', icon: 'sports_esports' },
     { key: 'ai', label: 'AI', icon: 'smart_toy' },
     { key: 'lapor', label: 'Lapor', icon: 'shield' },
     { key: 'saya', label: 'Saya', icon: 'person' },
   ];
+
+  const adminTabs: { key: TabType; label: string; icon: string }[] = [
+    { key: 'admin', label: 'Satgas', icon: 'admin_panel_settings' },
+    { key: 'home', label: 'Siswa', icon: 'visibility' },
+    { key: 'ai', label: 'AI', icon: 'smart_toy' },
+    { key: 'saya', label: 'Saya', icon: 'person' },
+  ];
+
+  const tabs = userRole === 'admin' ? adminTabs : studentTabs;
 
   return (
     <nav

@@ -64,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
       className="fixed top-0 w-full lg:w-[calc(100%-260px)] lg:left-[260px] z-50 bg-[#f6faff]/90 backdrop-blur-xl shadow-[0px_4px_20px_rgba(26,43,72,0.05)] transition-all lg:border-b lg:border-[#e2e9f1]/60 lg:shadow-none"
     >
       <div className="flex justify-between items-center px-5 py-3.5 max-w-[480px] mx-auto md:max-w-[1024px] lg:max-w-[1200px]">
-        {currentScreen === 'home' ? (
+        {currentScreen === 'home' || currentScreen === 'admin_dashboard' ? (
           <button
             id="user-profile-header-btn"
             onClick={onOpenProfile}
@@ -82,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
                 Halo, {user.name.split(' ')[0]}! <span className="inline-block text-[14px]">👋</span>
               </h2>
               <p className="text-[11px] text-[#44474d] line-clamp-1">
-                Siap buat sekolah lebih aman?
+                {user.userRole === 'admin' ? '🛡️ Satgas Anti-Bullying' : 'Siap buat sekolah lebih aman?'}
               </p>
             </div>
           </button>
@@ -106,6 +106,11 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         <div className="flex items-center gap-2">
+          {user.userRole === 'admin' && (
+            <span className="bg-[#00658d] text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs">
+              ADMIN
+            </span>
+          )}
           {currentScreen === 'home' && (
             <span className="hidden sm:inline-block font-extrabold text-[20px] text-[#00658d] tracking-tight mr-1">
               SIGAP

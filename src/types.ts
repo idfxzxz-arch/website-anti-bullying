@@ -1,8 +1,11 @@
-export type TabType = 'home' | 'game' | 'ai' | 'lapor' | 'saya';
+export type TabType = 'home' | 'game' | 'ai' | 'lapor' | 'saya' | 'admin';
+
+export type UserRole = 'student' | 'admin';
 
 export type ScreenType =
   | 'splash'
   | 'onboarding'
+  | 'login'
   | 'home'
   | 'learning'
   | 'learning_detail'
@@ -17,13 +20,21 @@ export type ScreenType =
   | 'report_success'
   | 'report_status'
   | 'friends'
-  | 'profile';
+  | 'profile'
+  | 'admin_dashboard'
+  | 'admin_reports'
+  | 'admin_analytics';
 
 export interface UserProfile {
+  id?: string;
   name: string;
+  username?: string;
+  email?: string;
+  userRole: UserRole;
   avatar: string;
-  role: string;
+  role: string; // Display title, e.g. "Siswa Baru", "Ketua Satgas BK"
   school: string;
+  adminTitle?: string;
   level: number;
   levelTitle: string;
   currentXp: number;

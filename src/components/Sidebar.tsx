@@ -7,6 +7,7 @@ interface SidebarProps {
   onSelectTab: (tab: TabType) => void;
   onNavigateHome: () => void;
   onOpenProfile: () => void;
+  onLogout?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -15,14 +16,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   onNavigateHome,
   onOpenProfile,
+  onLogout,
 }) => {
-  const tabs: { key: TabType; label: string; icon: string }[] = [
+  const studentTabs: { key: TabType; label: string; icon: string }[] = [
     { key: 'home', label: 'Beranda', icon: 'home' },
     { key: 'game', label: 'SIGAP Game', icon: 'sports_esports' },
     { key: 'ai', label: 'Tanya AI', icon: 'smart_toy' },
     { key: 'lapor', label: 'Lapor Aman', icon: 'shield' },
     { key: 'saya', label: 'Profil Saya', icon: 'person' },
   ];
+
+  const adminTabs: { key: TabType; label: string; icon: string }[] = [
+    { key: 'admin', label: 'Panel Satgas TPPK', icon: 'admin_panel_settings' },
+    { key: 'home', label: 'Pratinjau Siswa', icon: 'visibility' },
+    { key: 'ai', label: 'Tanya AI', icon: 'smart_toy' },
+    { key: 'saya', label: 'Profil Saya', icon: 'person' },
+  ];
+
+  const tabs = user.userRole === 'admin' ? adminTabs : studentTabs;
 
   return (
     <aside
@@ -40,16 +51,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
               local_police
             </span>
           </div>
-          <span className="font-extrabold text-[26px] tracking-tight text-[#00658d]">
-            SIGAP
-          </span>
+          <div>
+            <span className="font-extrabold text-[24px] tracking-tight text-[#00658d] block leading-none">
+              SIGAP
+            </span>
+            {user.userRole === 'admin' && (
+              <span className="text-[10px] font-bold text-[#00658d] uppercase tracking-wider bg-[#d7e2ff] px-2 py-0.5 rounded-full inline-block mt-1">
+                Satgas TPPK
+              </span>
+            )}
+          </div>
         </button>
       </div>
 
       {/* Navigation Links */}
-      <div className="flex-1 px-4 py-6 flex flex-col gap-2 overflow-y-auto">
-        <h3 className="px-3 text-[12px] font-bold text-[#44474d] uppercase tracking-wider mb-2">
-          Menu Utama
+      <div className="flex-1 px-4 py-4 flex flex-col gap-1.5 overflow-y-auto">
+        <h3 className="px-3 text-[11px] font-bold text-[#44474d] uppercase tracking-wider mb-2">
+          {user.userRole === 'admin' ? 'Menu Satgas' : 'Menu Utama'}
         </h3>
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
@@ -57,14 +75,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={tab.key}
               onClick={() => onSelectTab(tab.key)}
-              className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer w-full text-left ${
+              className={`flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer w-full text-left ${
                 isActive
-                  ? 'bg-[#2dbcfe] text-white shadow-[0px_4px_14px_rgba(45,188,254,0.35)] font-bold'
+                  ? 'bg-[#00658d] text-white shadow-[0px_4px_14px_rgba(0,101,141,0.3)] font-bold'
                   : 'text-[#44474d] hover:bg-[#edf4fc] hover:text-[#031632]'
               }`}
             >
               <span
-                className={`material-symbols-outlined text-[24px] ${
+                className={`material-symbols-outlined text-[22px] ${
                   isActive ? 'filled' : ''
                 }`}
                 style={{
@@ -73,17 +91,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
               >
                 {tab.icon}
               </span>
-              <span className="text-[15px] font-semibold">{tab.label}</span>
+              <span className="text-[14px] font-semibold">{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* User Profile Mini */}
-      <div className="p-4 border-t border-[#e2e9f1]">
+      {/* User Profile Mini + Quick Logout */}
+      <div className="p-4 border-t border-[#e2e9f1] space-y-2">
         <button
           onClick={onOpenProfile}
-          className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-[#edf4fc] transition-colors cursor-pointer text-left"
+          className="flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-[#edf4fc] transition-colors cursor-pointer text-left"
         >
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#2dbcfe] shrink-0">
             <img
@@ -93,14 +111,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-bold text-[#031632] truncate">
+            <p className="text-[13.5px] font-bold text-[#031632] truncate">
               {user.name}
             </p>
             <p className="text-[11px] text-[#00658d] font-semibold truncate">
-              Level {user.level} - {user.levelTitle}
+              {user.userRole === 'admin' ? 'Koordinator Satgas' : `Level ${user.level} - ${user.levelTitle}`}
             </p>
           </div>
         </button>
+
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="w-full py-2 px-3 rounded-lg text-[12px] font-bold text-[#ba1a1a] hover:bg-[#ffdad6]/60 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[16px]">logout</span>
+            Keluar Akun
+          </button>
+        )}
       </div>
     </aside>
   );

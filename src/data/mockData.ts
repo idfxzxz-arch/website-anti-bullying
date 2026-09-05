@@ -7,22 +7,67 @@ import {
   SituationQuestion,
 } from "../types";
 
-export const INITIAL_USER: UserProfile = {
+export const INITIAL_STUDENT_USER: UserProfile = {
+  id: "usr_student_01",
   name: "Siswa SIGAP",
+  username: "siswa",
+  email: "siswa@sigap.sch.id",
+  userRole: "student",
   avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCLchvyawcVsmD3JoG55Xi8PzI-ebjb_bEvDq3sRaWh2_jW4YDBdRi4OKvSwKRzlUSVL6Vwxes_XK5IKUjsBXiDszygEjomD7eIkqryziVO-XFG0zr5487TEyPKCO7F8CynZZXeRQ6O08bmbhSKZmFAYwueCgX99-_tuXYjQcjL__47xVWShf0wuYAaqmhH9O1Du7qFa3zemT8DCnmloLVFbW3jnsT6GTw3Qet5v5XZ-FGIf1_rig",
-  role: "Siswa Baru",
+  role: "Siswa Kelas 8B",
   school: "SMP Harapan Bangsa",
   level: 1,
   levelTitle: "Observer",
-  currentXp: 0,
-  maxXp: 500,
-  points: 0,
-  streakDays: 1,
-  completedModules: [],
+  currentXp: 50,
+  maxXp: 350,
+  points: 50,
+  streakDays: 3,
+  completedModules: [1],
   completedGames: [],
   completedSimulations: [],
-  earnedBadges: [],
+  earnedBadges: ["first_steps"],
 };
+
+export const INITIAL_ADMIN_USER: UserProfile = {
+  id: "usr_admin_01",
+  name: "Dra. Siti Rahmawati, M.Pd.",
+  username: "admin",
+  email: "admin@sigap.sch.id",
+  userRole: "admin",
+  avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=256&auto=format&fit=crop",
+  role: "Koordinator Satgas TPPK / Guru BK",
+  adminTitle: "Ketua Tim Pencegahan & Penanganan Kekerasan (TPPK)",
+  school: "SMP Harapan Bangsa",
+  level: 10,
+  levelTitle: "Satgas Utama",
+  currentXp: 1200,
+  maxXp: 1500,
+  points: 1200,
+  streakDays: 30,
+  completedModules: [1, 2, 3, 4, 5, 6],
+  completedGames: ["qd_1", "qd_2"],
+  completedSimulations: ["sim_1", "sim_2"],
+  earnedBadges: ["first_steps", "defender", "empath", "detective_master"],
+};
+
+export const INITIAL_USER: UserProfile = INITIAL_STUDENT_USER;
+
+export const DEMO_ACCOUNTS = [
+  {
+    username: "siswa",
+    email: "siswa@sigap.sch.id",
+    password: "siswa123",
+    role: "student" as const,
+    user: INITIAL_STUDENT_USER,
+  },
+  {
+    username: "admin",
+    email: "admin@sigap.sch.id",
+    password: "admin123",
+    role: "admin" as const,
+    user: INITIAL_ADMIN_USER,
+  },
+];
 
 export const ONBOARDING_SLIDES = [
   {
@@ -560,17 +605,63 @@ export const INITIAL_REPORTS: IncidentReport[] = [
     id: "SIGAP-2026-00124",
     createdAt: "2026-08-21 09:30",
     role: "victim",
-    description: "Sering diejek dan dipalak saat berada di belakang kantin.",
+    description: "Sering diejek dan dipalak saat berada di belakang kantin oleh sekelompok siswa senior.",
     datetime: "2026-08-20 12:15",
     location: "Kantin Belakang Sekolah",
-    incidentType: "Verbal & Finansial",
+    incidentType: "Verbal & Finansial (Pemalakan)",
     hasAttachment: true,
     fileName: "bukti_pesan_ancaman.jpg",
+    fileBase64: "https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=400&auto=format&fit=crop",
     isAnonymous: true,
     status: "Sedang Ditinjau",
     counselorNotes:
       "Laporan telah diterima oleh Tim Pencegahan Kekerasan Sekolah. Konselor sedang menjadwalkan mediasi tertutup dan pendampingan aman.",
   },
+  {
+    id: "SIGAP-2026-00125",
+    createdAt: "2026-08-22 14:10",
+    role: "witness",
+    description: "Melihat grup WA angkatan menyebarkan editan stiker memalukan dari teman sekelas hingga korban menangis dan tidak mau masuk sekolah.",
+    datetime: "2026-08-22 10:00",
+    location: "Grup WhatsApp Kelas 8B / Daring",
+    incidentType: "Cyberbullying",
+    hasAttachment: true,
+    fileName: "tangkapan_layar_chat.png",
+    fileBase64: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop",
+    isAnonymous: false,
+    status: "Dalam Penanganan",
+    counselorNotes:
+      "Admin grup telah dipanggil dan diberikan pembinaan. Satgas telah mendampingi korban untuk konseling pemulihan rasa percaya diri.",
+  },
+  {
+    id: "SIGAP-2026-00126",
+    createdAt: "2026-08-19 11:45",
+    role: "helper",
+    description: "Saya menemani teman sebangku yang dikucilkan saat kerja kelompok dan diancam agar tidak boleh duduk di baris depan.",
+    datetime: "2026-08-19 08:30",
+    location: "Ruang Kelas 8A",
+    incidentType: "Sosial & Relasional (Pengucilan)",
+    hasAttachment: false,
+    isAnonymous: false,
+    status: "Selesai",
+    counselorNotes:
+      "Wali kelas telah melakukan rotasi tempat duduk dan sesi refleksi empati bersama. Situasi kelas saat ini telah kondusif dan terpantau damai.",
+  },
+  {
+    id: "SIGAP-2026-00127",
+    createdAt: "2026-08-23 15:20",
+    role: "victim",
+    description: "Sepatu olahraga saya disembunyikan di atas ventilasi toilet dan dicoret dengan spidol permanen.",
+    datetime: "2026-08-23 13:40",
+    location: "Toilet Pria Lantai 2",
+    incidentType: "Bullying Fisik & Vandalisme",
+    hasAttachment: true,
+    fileName: "sepatu_dicoret.jpg",
+    fileBase64: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=400&auto=format&fit=crop",
+    isAnonymous: true,
+    status: "Sedang Ditinjau",
+    counselorNotes: "",
+  }
 ];
 
 export const QUICK_DECISION_CARDS = [
