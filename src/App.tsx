@@ -151,10 +151,10 @@ export function App() {
     if (authenticatedUser.userRole === 'admin') {
       setCurrentScreen('admin_dashboard');
       setActiveTab('admin');
-      showToast(`Selamat datang, ${authenticatedUser.name}! (Mode Admin Aktif)`);
+      showToast('Selamat datang, Admin! (Mode Satgas Aktif)');
       addGlobalNotification(
         'Sesi Admin Dimulai',
-        `Masuk sebagai Satgas TPPK / Guru BK: ${authenticatedUser.name}.`,
+        'Masuk sebagai Administrator Satgas TPPK.',
         'admin_panel_settings',
         'bg-[#00658d] text-white'
       );

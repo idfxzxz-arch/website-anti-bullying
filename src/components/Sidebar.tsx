@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {user.name}
             </p>
             <p className="text-[11px] text-[#00658d] font-semibold truncate">
-              {user.userRole === 'admin' ? 'Koordinator Satgas' : `Level ${user.level} - ${user.levelTitle}`}
+              {user.userRole === 'admin' ? 'Administrator Satgas' : `Level ${user.level} - ${user.levelTitle}`}
             </p>
           </div>
         </button>
