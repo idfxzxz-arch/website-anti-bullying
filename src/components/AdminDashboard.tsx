@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IncidentReport, UserProfile, ScreenType } from '../types';
+import { supabase } from '../lib/supabase';
 
 interface AdminDashboardProps {
   adminUser: UserProfile;
@@ -29,7 +30,49 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [savedSuccessAlert, setSavedSuccessAlert] = useState(false);
 
   // Active view tab in admin panel
-  const [adminTab, setAdminTab] = useState<'reports' | 'analytics'>('reports');
+  const [adminTab, setAdminTab] = useState<'reports' | 'analytics' | 'users'>('reports');
+  const [usersList, setUsersList] = useState<UserProfile[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+
+  // Fetch users when tab is 'users'
+  useEffect(() => {
+    if (adminTab === 'users') {
+      const fetchUsers = async () => {
+        setIsLoadingUsers(true);
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('user_role', 'student')
+          .order('points', { ascending: false });
+          
+        if (!error && data) {
+          const mapped = data.map((d: any) => ({
+            id: d.id,
+            name: d.name,
+            username: d.username,
+            email: d.email,
+            userRole: d.user_role,
+            avatar: d.avatar,
+            role: d.role,
+            school: d.school,
+            level: d.level,
+            levelTitle: d.level_title,
+            currentXp: d.current_xp,
+            maxXp: d.max_xp,
+            points: d.points,
+            streakDays: d.streak_days,
+            completedModules: d.completed_modules || [],
+            completedGames: d.completed_games || [],
+            completedSimulations: d.completed_simulations || [],
+            earnedBadges: d.earned_badges || [],
+          }));
+          setUsersList(mapped);
+        }
+        setIsLoadingUsers(false);
+      };
+      fetchUsers();
+    }
+  }, [adminTab]);
 
   // Open detail modal
   const handleOpenModal = (report: IncidentReport) => {
@@ -202,8 +245,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </div>
 
       {/* Main Section Navigation Switcher */}
-      <div className="flex items-center justify-between gap-3 border-b border-[#dce3eb] pb-3">
-        <div className="flex gap-2">
+      <div className="flex items-center justify-between gap-3 border-b border-[#dce3eb] pb-3 overflow-x-auto hide-scrollbar">
+        <div className="flex gap-2 min-w-max">
           <button
             id="tab-manage-reports"
             onClick={() => setAdminTab('reports')}
@@ -228,6 +271,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           >
             <span className="material-symbols-outlined text-[18px]">insights</span>
             Statistik & Analisis Kasus
+          </button>
+
+          <button
+            id="tab-admin-users"
+            onClick={() => setAdminTab('users')}
+            className={`px-4 py-2 rounded-xl font-bold text-[13.5px] transition-all cursor-pointer flex items-center gap-2 ${
+              adminTab === 'users'
+                ? 'bg-[#00658d] text-white shadow-sm'
+                : 'bg-white text-[#58606e] hover:bg-[#edf4fc]'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">group</span>
+            Aktivitas Siswa
           </button>
         </div>
       </div>
@@ -448,6 +504,96 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* VIEW 3: USERS LIST & ACTIVITY */}
+      {adminTab === 'users' && (
+        <div className="space-y-4">
+          <div className="bg-white p-4 rounded-[20px] border border-[#e2e9f1] shadow-[0px_4px_20px_rgba(26,43,72,0.03)] flex flex-col md:flex-row gap-3 justify-between items-center">
+            <div>
+              <h2 className="text-[16px] font-bold text-[#031632] flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#00658d]">group</span>
+                Daftar Aktivitas Siswa
+              </h2>
+              <p className="text-[13px] text-[#58606e] mt-1">
+                Pantau perkembangan XP, poin, lencana, dan partisipasi edukasi siswa di platform.
+              </p>
+            </div>
+            <div className="text-[12.5px] font-bold text-[#00658d] bg-[#edf4fc] px-4 py-2 rounded-xl border border-[#c6e7ff] whitespace-nowrap">
+              Total: {usersList.length} Siswa Terdaftar
+            </div>
+          </div>
+          
+          {isLoadingUsers ? (
+            <div className="flex justify-center items-center p-12 bg-white rounded-[22px] border border-[#e2e9f1]">
+              <div className="flex flex-col items-center gap-3">
+                <span className="inline-block w-8 h-8 border-[3px] border-[#2dbcfe] border-t-transparent rounded-full animate-spin"></span>
+                <span className="text-[13px] font-bold text-[#58606e]">Memuat data siswa...</span>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {usersList.length === 0 ? (
+                <div className="col-span-full bg-white rounded-2xl p-10 text-center border border-[#e2e9f1]">
+                  <span className="material-symbols-outlined text-[48px] text-[#c5c6ce] mb-2">group_off</span>
+                  <p className="text-[15px] font-bold text-[#031632]">Belum Ada Data Siswa</p>
+                </div>
+              ) : usersList.map(u => (
+                <div key={u.id} className="bg-white rounded-[22px] p-5 border border-[#e2e9f1] shadow-[0px_4px_20px_rgba(26,43,72,0.02)] hover:border-[#2dbcfe]/50 hover:shadow-md transition-all flex flex-col gap-4 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#2dbcfe]/10 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
+                  <div className="flex items-center gap-3.5 border-b border-[#f0f4f9] pb-4">
+                    <div className="relative">
+                      <img src={u.avatar} alt="avatar" className="w-[52px] h-[52px] rounded-[16px] bg-[#f6faff] border border-[#dce3eb] shadow-sm object-cover" />
+                      <div className="absolute -bottom-2 -right-2 bg-[#031632] text-white text-[10px] font-black px-1.5 py-0.5 rounded-md border border-white/20 shadow-sm">
+                        Lvl {u.level}
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-[15.5px] font-bold text-[#031632] leading-tight">{u.name}</h3>
+                      <p className="text-[12.5px] text-[#58606e] font-medium mt-0.5">@{u.username}</p>
+                    </div>
+                    <div className="ml-auto text-right bg-[#edf4fc] p-2.5 rounded-xl border border-[#dce3eb]">
+                      <div className="text-[18px] font-black text-[#00658d] leading-none mb-1">{u.points}</div>
+                      <div className="text-[10px] font-black text-[#58606e] uppercase tracking-wider">XP Poin</div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2.5 text-[12.5px]">
+                    <div className="bg-[#f6faff] p-3 rounded-xl border border-[#e8eff7] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[18px] text-[#00658d]">workspace_premium</span>
+                      <div>
+                        <span className="block text-[#75777e] text-[10.5px] font-bold mb-0.5 leading-none">Rank Status</span>
+                        <span className="font-bold text-[#031632] leading-none block">{u.levelTitle}</span>
+                      </div>
+                    </div>
+                    <div className="bg-[#f6faff] p-3 rounded-xl border border-[#e8eff7] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[18px] text-[#f59e0b]">military_tech</span>
+                      <div>
+                        <span className="block text-[#75777e] text-[10.5px] font-bold mb-0.5 leading-none">Total Lencana</span>
+                        <span className="font-bold text-[#031632] leading-none block">{u.earnedBadges?.length || 0} Terkumpul</span>
+                      </div>
+                    </div>
+                    <div className="bg-[#f6faff] p-3 rounded-xl border border-[#e8eff7] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[18px] text-[#10b981]">menu_book</span>
+                      <div>
+                        <span className="block text-[#75777e] text-[10.5px] font-bold mb-0.5 leading-none">Modul Selesai</span>
+                        <span className="font-bold text-[#031632] leading-none block">{u.completedModules?.length || 0} Materi</span>
+                      </div>
+                    </div>
+                    <div className="bg-[#f6faff] p-3 rounded-xl border border-[#e8eff7] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[18px] text-[#8b5cf6]">sports_esports</span>
+                      <div>
+                        <span className="block text-[#75777e] text-[10.5px] font-bold mb-0.5 leading-none">Misi & Simulasi</span>
+                        <span className="font-bold text-[#031632] leading-none block">{(u.completedGames?.length || 0) + (u.completedSimulations?.length || 0)} Misi</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
