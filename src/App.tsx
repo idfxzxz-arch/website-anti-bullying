@@ -13,6 +13,7 @@ import {
   LEARNING_MODULES,
   INITIAL_REPORTS,
 } from './data/mockData';
+import { supabase } from './lib/supabase';
 
 // Modular Components
 import { Header } from './components/Header';
@@ -125,8 +126,65 @@ export function App() {
   useEffect(() => {
     if (isLoggedIn && user) {
       localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
+      // Sync user progress to Supabase (only if it's a real DB record)
+      if (user.id && !user.id.startsWith('usr_student_')) {
+        supabase.from('users').update({
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+          role: user.role,
+          school: user.school,
+          admin_title: user.adminTitle,
+          level: user.level,
+          level_title: user.levelTitle,
+          current_xp: user.currentXp,
+          max_xp: user.maxXp,
+          points: user.points,
+          streak_days: user.streakDays,
+          completed_modules: user.completedModules,
+          completed_games: user.completedGames,
+          completed_simulations: user.completedSimulations,
+          earned_badges: user.earnedBadges,
+        }).eq('id', user.id).then(({error}) => {
+          if (error) console.error('Failed to sync user to Supabase', error);
+        });
+      }
     }
   }, [user, isLoggedIn]);
+
+  // Fetch reports from Supabase when user logs in
+  useEffect(() => {
+    async function fetchReports() {
+      if (isLoggedIn && user && user.id && !user.id.startsWith('usr_student_')) {
+        let query = supabase.from('reports').select('*').order('created_at', { ascending: false });
+        if (user.userRole !== 'admin') {
+          query = query.eq('user_id', user.id);
+        }
+        
+        const { data, error } = await query;
+        if (!error && data) {
+          const mappedReports = data.map((r: any) => ({
+            id: r.id,
+            createdAt: r.created_at,
+            role: r.role,
+            description: r.description,
+            datetime: r.datetime,
+            location: r.location,
+            incidentType: r.incident_type,
+            hasAttachment: r.has_attachment,
+            fileName: r.file_name,
+            fileBase64: r.file_base64,
+            isAnonymous: r.is_anonymous,
+            status: r.status,
+            counselorNotes: r.counselor_notes
+          }));
+          setReports(mappedReports);
+        }
+      }
+    }
+    fetchReports();
+  }, [user?.id, isLoggedIn, user?.userRole]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_REPORTS, JSON.stringify(reports));
@@ -315,15 +373,36 @@ export function App() {
     setCurrentScreen('simulation_play');
   };
 
-  const handleSubmitNewReport = (report: IncidentReport) => {
+  const handleSubmitNewReport = async (report: IncidentReport) => {
+    // Save locally immediately for fast UI
     setReports((prev) => [report, ...prev]);
     setLastSubmittedReport(report);
     setCurrentScreen('report_success');
     handleAddXp(50, 'Mengirim Laporan Aman');
     addGlobalNotification('Laporan Terkirim', 'Terima kasih, laporanmu telah diamankan di sistem.', 'verified_user', 'bg-[#c6e7ff] text-[#00658d]');
+
+    // Sync to Supabase if authenticated
+    if (user && user.id && !user.id.startsWith('usr_student_')) {
+      const { error } = await supabase.from('reports').insert([{
+        user_id: user.id,
+        role: report.role,
+        description: report.description,
+        datetime: report.datetime,
+        location: report.location,
+        incident_type: report.incidentType,
+        has_attachment: report.hasAttachment,
+        file_name: report.fileName,
+        file_base64: report.fileBase64,
+        is_anonymous: report.isAnonymous,
+        status: report.status,
+        counselor_notes: report.counselorNotes,
+      }]);
+      if (error) console.error('Failed to sync new report to Supabase', error);
+    }
   };
 
-  const handleUpdateReportFromAdmin = (updatedReport: IncidentReport) => {
+  const handleUpdateReportFromAdmin = async (updatedReport: IncidentReport) => {
+    // Update locally
     setReports((prev) =>
       prev.map((r) => (r.id === updatedReport.id ? updatedReport : r))
     );
@@ -334,6 +413,15 @@ export function App() {
       'edit_note',
       'bg-[#edf4fc] text-[#00658d]'
     );
+
+    // Sync to Supabase
+    if (!updatedReport.id.startsWith('rpt_')) { // Real UUID from Supabase doesn't start with rpt_
+      const { error } = await supabase.from('reports').update({
+        status: updatedReport.status,
+        counselor_notes: updatedReport.counselorNotes,
+      }).eq('id', updatedReport.id);
+      if (error) console.error('Failed to update report in Supabase', error);
+    }
   };
 
   // 1. Splash Screen

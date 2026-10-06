@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserProfile, UserRole } from '../types';
 import { DEMO_ACCOUNTS, INITIAL_STUDENT_USER, INITIAL_ADMIN_USER } from '../data/mockData';
+import { supabase } from '../lib/supabase';
 
 interface LoginViewProps {
   onLoginSuccess: (user: UserProfile) => void;
@@ -54,7 +55,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   // Submit Login/Register
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
@@ -65,61 +66,120 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
       if (isRegisterMode) {
         // Register new student
-        const newStudentUser: UserProfile = {
-          id: `usr_student_${Date.now()}`,
+        const newStudentUser = {
           name: fullName.trim() || 'Siswa SIGAP Baru',
           username: usernameOrEmail.trim().toLowerCase(),
           email: usernameOrEmail.includes('@') ? usernameOrEmail.trim() : `${usernameOrEmail.trim()}@sigap.sch.id`,
-          userRole: 'student',
+          password: password, // In production, hash this!
+          user_role: 'student',
           avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCLchvyawcVsmD3JoG55Xi8PzI-ebjb_bEvDq3sRaWh2_jW4YDBdRi4OKvSwKRzlUSVL6Vwxes_XK5IKUjsBXiDszygEjomD7eIkqryziVO-XFG0zr5487TEyPKCO7F8CynZZXeRQ6O08bmbhSKZmFAYwueCgX99-_tuXYjQcjL__47xVWShf0wuYAaqmhH9O1Du7qFa3zemT8DCnmloLVFbW3jnsT6GTw3Qet5v5XZ-FGIf1_rig',
           role: 'Siswa Baru',
           school: schoolName.trim() || 'SMP Harapan Bangsa',
           level: 1,
-          levelTitle: 'Observer',
-          currentXp: 0,
-          maxXp: 350,
+          level_title: 'Observer',
+          current_xp: 0,
+          max_xp: 350,
           points: 0,
-          streakDays: 1,
-          completedModules: [],
-          completedGames: [],
-          completedSimulations: [],
-          earnedBadges: [],
+          streak_days: 1,
+          completed_modules: [],
+          completed_games: [],
+          completed_simulations: [],
+          earned_badges: [],
         };
-        onLoginSuccess(newStudentUser);
+        
+        const { data, error } = await supabase
+          .from('users')
+          .insert([newStudentUser])
+          .select()
+          .single();
+          
+        if (error) throw error;
+        
+        // Map snake_case to camelCase
+        const mappedUser: UserProfile = {
+          id: data.id,
+          name: data.name,
+          username: data.username,
+          email: data.email,
+          userRole: data.user_role as UserRole,
+          avatar: data.avatar,
+          role: data.role,
+          school: data.school,
+          adminTitle: data.admin_title,
+          level: data.level,
+          levelTitle: data.level_title,
+          currentXp: data.current_xp,
+          maxXp: data.max_xp,
+          points: data.points,
+          streakDays: data.streak_days,
+          completedModules: data.completed_modules,
+          completedGames: data.completed_games,
+          completedSimulations: data.completed_simulations,
+          earnedBadges: data.earned_badges,
+        };
+        
+        onLoginSuccess(mappedUser);
         setIsLoading(false);
         return;
       }
 
-      // Check demo credentials
-      const matched = DEMO_ACCOUNTS.find(
-        (acc) =>
-          acc.role === activeRole &&
-          (acc.username.toLowerCase() === usernameOrEmail.trim().toLowerCase() ||
-            acc.email.toLowerCase() === usernameOrEmail.trim().toLowerCase()) &&
-          acc.password === password
-      );
-
-      if (matched) {
-        onLoginSuccess(matched.user);
+      // Login
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .or(`username.eq.${usernameOrEmail.trim()},email.eq.${usernameOrEmail.trim()}`)
+        .eq('password', password)
+        .eq('user_role', activeRole)
+        .single();
+        
+      if (error || !data) {
+         // Fallback to demo check for easy testing if no supabase connection yet
+         const matched = DEMO_ACCOUNTS.find(
+          (acc) =>
+            acc.role === activeRole &&
+            (acc.username.toLowerCase() === usernameOrEmail.trim().toLowerCase() ||
+              acc.email.toLowerCase() === usernameOrEmail.trim().toLowerCase()) &&
+            acc.password === password
+         );
+  
+         if (matched) {
+           onLoginSuccess(matched.user);
+         } else {
+            setErrorMessage('Kredensial tidak valid. Silakan periksa kembali.');
+         }
       } else {
-        // Allow flexible login if student role or fallback
-        if (activeRole === 'student') {
-          const customStudent: UserProfile = {
-            ...INITIAL_STUDENT_USER,
-            id: `usr_student_${Date.now()}`,
-            name: usernameOrEmail.split('@')[0],
-            username: usernameOrEmail.trim(),
-          };
-          onLoginSuccess(customStudent);
-        } else {
-          setErrorMessage('Kredensial Admin tidak cocok. Gunakan admin / admin123 untuk akun demo.');
-        }
+        const mappedUser: UserProfile = {
+          id: data.id,
+          name: data.name,
+          username: data.username,
+          email: data.email,
+          userRole: data.user_role as UserRole,
+          avatar: data.avatar,
+          role: data.role,
+          school: data.school,
+          adminTitle: data.admin_title,
+          level: data.level,
+          levelTitle: data.level_title,
+          currentXp: data.current_xp,
+          maxXp: data.max_xp,
+          points: data.points,
+          streakDays: data.streak_days,
+          completedModules: data.completed_modules,
+          completedGames: data.completed_games,
+          completedSimulations: data.completed_simulations,
+          earnedBadges: data.earned_badges,
+        };
+        onLoginSuccess(mappedUser);
       }
+    } catch (err: any) {
+      console.error(err);
+      setErrorMessage(err.message || 'Terjadi kesalahan saat login.');
+    } finally {
       setIsLoading(false);
-    }, 450);
+    }
   };
 
   return (
