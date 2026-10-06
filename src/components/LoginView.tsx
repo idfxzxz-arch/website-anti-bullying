@@ -80,6 +80,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
         };
         onLoginSuccess(mappedUser);
       } else {
+        alert("Gagal koneksi ke database Supabase: " + (error?.message || "User tidak ditemukan."));
         // Fallback to mock data if database is not set up
         if (role === 'admin') {
           onLoginSuccess(INITIAL_ADMIN_USER);
@@ -87,8 +88,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
           onLoginSuccess(INITIAL_STUDENT_USER);
         }
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      alert("Error: " + err.message);
       if (role === 'admin') onLoginSuccess(INITIAL_ADMIN_USER);
       else onLoginSuccess(INITIAL_STUDENT_USER);
     } finally {
