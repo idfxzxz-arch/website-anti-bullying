@@ -41,17 +41,59 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   // Quick Demo Login
-  const handleQuickDemoLogin = (role: UserRole) => {
+  const handleQuickDemoLogin = async (role: UserRole) => {
     setIsLoading(true);
     setErrorMessage(null);
-    setTimeout(() => {
-      if (role === 'admin') {
-        onLoginSuccess(INITIAL_ADMIN_USER);
+    
+    try {
+      const demoUsername = role === 'admin' ? 'admin' : 'siswa';
+      const demoPassword = role === 'admin' ? 'admin123' : 'siswa123';
+      
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', demoUsername)
+        .eq('password', demoPassword)
+        .single();
+        
+      if (!error && data) {
+        const mappedUser: UserProfile = {
+          id: data.id,
+          name: data.name,
+          username: data.username,
+          email: data.email,
+          userRole: data.user_role as UserRole,
+          avatar: data.avatar,
+          role: data.role,
+          school: data.school,
+          adminTitle: data.admin_title,
+          level: data.level,
+          levelTitle: data.level_title,
+          currentXp: data.current_xp,
+          maxXp: data.max_xp,
+          points: data.points,
+          streakDays: data.streak_days,
+          completedModules: data.completed_modules,
+          completedGames: data.completed_games,
+          completedSimulations: data.completed_simulations,
+          earnedBadges: data.earned_badges,
+        };
+        onLoginSuccess(mappedUser);
       } else {
-        onLoginSuccess(INITIAL_STUDENT_USER);
+        // Fallback to mock data if database is not set up
+        if (role === 'admin') {
+          onLoginSuccess(INITIAL_ADMIN_USER);
+        } else {
+          onLoginSuccess(INITIAL_STUDENT_USER);
+        }
       }
+    } catch (err) {
+      console.error(err);
+      if (role === 'admin') onLoginSuccess(INITIAL_ADMIN_USER);
+      else onLoginSuccess(INITIAL_STUDENT_USER);
+    } finally {
       setIsLoading(false);
-    }, 400);
+    }
   };
 
   // Submit Login/Register
