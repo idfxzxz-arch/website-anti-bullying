@@ -149,7 +149,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase border border-white/30">
                 🛡️ Panel Satgas TPPK
               </span>
-              <span className="text-white/80 text-[12px]">• {adminUser.school || 'SMP Harapan Bangsa'}</span>
+              <span className="text-white/80 text-[12px]">• {adminUser.school || 'SMPN 1 Magetan'}</span>
             </div>
             <h1 className="text-[20px] md:text-[24px] font-black leading-tight mt-1">
               Admin

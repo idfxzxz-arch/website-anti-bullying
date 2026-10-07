@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfile, ScreenType } from '../types';
 import { BADGES_LIST } from '../data/mockData';
 
@@ -21,6 +21,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [editName, setEditName] = useState(user.name);
   const [editRole, setEditRole] = useState(user.role);
   const [editSchool, setEditSchool] = useState(user.school);
+
+  useEffect(() => {
+    setEditName(user.name);
+    setEditRole(user.role);
+    setEditSchool(user.school);
+  }, [user]);
 
   const xpPercent = Math.round((user.currentXp / (user.maxXp || 350)) * 100);
 

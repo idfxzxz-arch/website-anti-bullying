@@ -75,12 +75,16 @@ export function App() {
       const savedUser = localStorage.getItem(STORAGE_KEY_USER);
       if (savedUser) {
         const parsed = JSON.parse(savedUser);
+        if (!parsed.school || parsed.school.includes('Harapan Bangsa')) {
+          parsed.school = 'SMPN 1 Magetan';
+        }
         if (parsed.userRole === 'admin') {
           return {
             ...parsed,
             name: 'Admin',
             role: 'Administrator Satgas',
             adminTitle: 'Satgas Anti-Bullying (TPPK)',
+            school: parsed.school || 'SMPN 1 Magetan',
           };
         }
         return parsed;

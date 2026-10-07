@@ -21,7 +21,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [schoolName, setSchoolName] = useState('SMP Harapan Bangsa');
+  const [schoolName, setSchoolName] = useState('SMPN 1 Magetan');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -120,7 +120,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           user_role: 'student',
           avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCLchvyawcVsmD3JoG55Xi8PzI-ebjb_bEvDq3sRaWh2_jW4YDBdRi4OKvSwKRzlUSVL6Vwxes_XK5IKUjsBXiDszygEjomD7eIkqryziVO-XFG0zr5487TEyPKCO7F8CynZZXeRQ6O08bmbhSKZmFAYwueCgX99-_tuXYjQcjL__47xVWShf0wuYAaqmhH9O1Du7qFa3zemT8DCnmloLVFbW3jnsT6GTw3Qet5v5XZ-FGIf1_rig',
           role: 'Siswa Baru',
-          school: schoolName.trim() || 'SMP Harapan Bangsa',
+          school: schoolName.trim() || 'SMPN 1 Magetan',
           level: 1,
           level_title: 'Observer',
           current_xp: 0,
@@ -357,7 +357,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   <input
                     id="register-school-input"
                     type="text"
-                    placeholder="Contoh: SMP Harapan Bangsa"
+                    placeholder="Contoh: SMPN 1 Magetan"
                     value={schoolName}
                     onChange={(e) => setSchoolName(e.target.value)}
                     className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-[#dce3eb] bg-[#f6faff] text-[13.5px] text-[#031632] placeholder-[#8a92a0] focus:outline-none focus:border-[#2dbcfe] focus:bg-white transition-all"
